@@ -10,6 +10,9 @@ public class Player : MonoBehaviour
     public GameObject bombPrefab;
     public Transform bombsTransform;
     public float speed;
+    public float maxSpeed;
+    public float acceTime;
+    float acceleration;
 
     void Update()
     {
@@ -42,7 +45,29 @@ public class Player : MonoBehaviour
 
         }
 
+        if (direction == Vector3.zero)
+        {
+            speed = 0;
+
+        }
+        else
+        {
+            if (speed >= maxSpeed)
+            {
+                speed = maxSpeed;
+            }
+            else
+            {
+                speed += acceleration * Time.deltaTime;
+            }
+        }
+        
         transform.position += direction.normalized * speed * Time.deltaTime;
 
+        acceleration = maxSpeed / acceTime;
+      
+        
+
+        
     }
 }
