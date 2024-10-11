@@ -17,12 +17,13 @@ public class Player : MonoBehaviour
     float deceleration;
     Vector3 velocity;
     int lastCount = 0;
-
+    public float radius;
+    public int circlePoints;
 
     void Update()
     {
         PlayerMovement();
-
+        EnemyRadar(radius,circlePoints);
     }
     
     public void PlayerMovement()
@@ -86,4 +87,25 @@ public class Player : MonoBehaviour
 
         
     }
+    public void EnemyRadar(float r, int cp)
+    {
+        Vector2 startP = new Vector2(r, 0)+ (Vector2)transform.position;
+        for(int i =1;i<=cp;i++)
+        {
+            float angle = i*360 / cp*Mathf.Deg2Rad;
+            Vector2 endP = r*new Vector2(Mathf.Cos(angle),Mathf.Sin(angle)) + (Vector2)transform.position;
+            Color color;
+            if(Vector2.Distance(transform.position,enemyTransform.position)<r)
+            {
+                color = Color.red;
+            }
+            else
+            {
+                color = Color.green;
+            }
+            Debug.DrawLine(startP, endP,color);
+            startP= endP;
+        }
+    }
+
 }
