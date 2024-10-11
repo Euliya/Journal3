@@ -19,11 +19,16 @@ public class Player : MonoBehaviour
     int lastCount = 0;
     public float radius;
     public int circlePoints;
+    public int numberOfPowerups;
+    public GameObject powerupPrefab;
+
+
 
     void Update()
     {
         PlayerMovement();
         EnemyRadar(radius,circlePoints);
+        SpawnPowerups(radius, numberOfPowerups);
     }
     
     public void PlayerMovement()
@@ -107,5 +112,24 @@ public class Player : MonoBehaviour
             startP= endP;
         }
     }
+    List<GameObject> pups = new List<GameObject>();
+
+    public void SpawnPowerups(float r, int np)
+    {
+        foreach(GameObject pup in pups)
+        {
+            Destroy(pup);
+        }
+        for (int i = 1; i <= np; i++)
+        {
+            float angle = i * 360 / np * Mathf.Deg2Rad;
+            Vector2 point = r * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) + (Vector2)transform.position;
+            GameObject pup = Instantiate(powerupPrefab);
+            pup.transform.position = point;
+            pups.Add(pup);
+        }
+        
+    }
+    
 
 }
