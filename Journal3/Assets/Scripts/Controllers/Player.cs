@@ -21,14 +21,25 @@ public class Player : MonoBehaviour
     public int circlePoints;
     public int numberOfPowerups;
     public GameObject powerupPrefab;
+    public float addSpeed;
+    Coroutine speeding;
+    List<float> ChangeRadius;
+    List<float> radiusSpeed;
 
-
+    private void Start()
+    {
+        ChangeRadius = new List<float>();
+        radiusSpeed = new List<float>();
+        StartCoroutine(Rbgn());
+    }
 
     void Update()
     {
         PlayerMovement();
         EnemyRadar(radius,circlePoints);
         SpawnPowerups(radius, numberOfPowerups);
+        Shoot();
+        Rbg();
     }
     
     public void PlayerMovement()
@@ -55,6 +66,12 @@ public class Player : MonoBehaviour
             direction += Vector3.left;
             count++;
         }
+
+        if (Input.GetKeyDown(KeyCode.X) && speeding == null)
+        {
+                speeding=StartCoroutine(AddSpeed());
+        }
+
         if (count==0)
         {
             if (lastCount > 0)
@@ -100,7 +117,7 @@ public class Player : MonoBehaviour
             float angle = i*360 / cp*Mathf.Deg2Rad;
             Vector2 endP = r*new Vector2(Mathf.Cos(angle),Mathf.Sin(angle)) + (Vector2)transform.position;
             Color color;
-            if(Vector2.Distance(transform.position,enemyTransform.position)<r)
+            if(Vector2.Distance(transform.position,enemyTransform.position)<radius)
             {
                 color = Color.red;
             }
@@ -108,9 +125,12 @@ public class Player : MonoBehaviour
             {
                 color = Color.green;
             }
+            color = Color.Lerp(Color.blue, color, r / radius);
             Debug.DrawLine(startP, endP,color);
             startP= endP;
         }
+
+
     }
     List<GameObject> pups = new List<GameObject>();
 
@@ -130,6 +150,54 @@ public class Player : MonoBehaviour
         }
         
     }
-    
+    IEnumerator AddSpeed()
+    {
+        speed += addSpeed;
+        maxSpeed += addSpeed;
+        yield return new WaitForSeconds(0.5f);
+        speed-=addSpeed;
+        maxSpeed-=addSpeed;
+        yield return new WaitForSeconds(3f);
+        speeding = null;
+    }
 
+    private void Shoot()
+    {
+        if(Input.GetKeyDown(KeyCode.Q)) 
+        {
+            GameObject bp=Instantiate(bombPrefab);
+            bp.transform.position = transform.position;
+        }
+        
+    }
+
+
+    public void Rbg()
+    {
+        for(int i=0;i<ChangeRadius.Count;i++)
+        {
+            ChangeRadius[i] -= radiusSpeed[i] * Time.deltaTime;
+            radiusSpeed[i] += 5f * Time.deltaTime;
+
+            if(ChangeRadius[i] <= 0)
+            {
+                ChangeRadius.RemoveAt(i);
+                radiusSpeed.RemoveAt(i);
+            }
+            else
+            {
+                EnemyRadar(ChangeRadius[i], circlePoints);
+            }
+        }
+    }
+
+    IEnumerator Rbgn()
+    {
+        while(true)
+        {
+            ChangeRadius.Add(radius);
+            radiusSpeed.Add(2f);
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
 }
